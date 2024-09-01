@@ -1,0 +1,35 @@
+import pandas as pd
+from keras.models import load_model
+submission = pd.read_csv(r'C:\Users\sahithi aharam\Downloads\sample_submission.csv')
+model = load_model('model.h5')
+
+def predict_sales_for_date_and_product(model, date, product_id):
+    num_samples_per_day = 1781  # Replace with the actual number of samples per day
+    return [i * product_id for i in range(num_samples_per_day)]
+
+# Placeholder function for demonstration, replace with your actual logic
+def calculate_sample_id(date, product_id, n_samples_per_day):
+    return f"{date.strftime('%Y-%m-%d')}_{product_id}_{n_samples_per_day}"
+
+# Assuming user provides input for date, product ID, and n_samples_per_day with error handling
+while True:
+    input_date = input("Enter the date (YYYY-MM-DD): ")
+    try:
+        date_to_predict = pd.to_datetime(input_date)
+        break  # Exit the loop if the date is successfully parsed
+    except ValueError:
+        print("Invalid date format. Please enter the date in the format YYYY-MM-DD.")
+
+product_id = int(input("Enter the product ID: "))
+n_samples_per_day = int(input("Enter the number of samples per day: "))
+
+# Predict the value for the specified date and product ID
+predicted_value = predict_sales_for_date_and_product(model, date_to_predict, product_id)[n_samples_per_day]
+
+# Update submission DataFrame with the single predicted value
+sample_id = calculate_sample_id(date_to_predict, product_id, n_samples_per_day)
+submission.at[sample_id, 'sales'] = predicted_value
+
+# Display only the updated value without index and column name
+result_str = submission.loc[[sample_id], 'sales'].to_string(index=False, header=False)
+print(result_str)
